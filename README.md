@@ -1,175 +1,356 @@
-## Eshk\Crud: A PDO-based CRUD Class
+# QRUD - Query CRUD 🚀
 
-This class provides a simple and robust way to perform Create, Read, Update, and Delete (CRUD) operations on your database tables using PHP Data Objects (PDO).
+A powerful and intuitive CRUD & Query Builder for PHP with Laravel-like syntax, featuring intelligent WHERE clauses and fluent API.
 
-**Installation**
+![PHP Version](https://img.shields.io/badge/PHP-8.0%2B-blue) ![License](https://img.shields.io/badge/License-MIT-green) ![Version](https://img.shields.io/badge/Version-1.0.0-orange)
 
-There's no specific installation required for this class. You can simply copy the `CRUD.php` file into your project directory.
+## ✨ Features
 
-**Requirements**
+- **🚀 Fluent Query Builder** - Laravel-like syntax
+- **🎯 Intelligent WHERE** - Smart condition handling
+- **🔒 Secure** - PDO prepared statements
+- **🔄 Transactions** - Full transaction support
+- **📊 Aggregations** - Count, Sum, Avg, Exists
+- **🔗 JOINs** - All JOIN types supported
+- **📄 Pagination** - Built-in pagination
+- **🛠️ Subqueries** - Powerful subquery support
+- **💡 Smart NULL/IN/BETWEEN** - Automatic condition detection
 
-- PHP 7.4 or later
-- A database connection established using PDO
+## 📦 Installation
 
-**Usage**
+```bash
+composer require erilshk/qrud
+```
 
-1. **Initialization:**
+## 🚀 Quick Start
 
-   - **Direct PDO Connection:**
-
-   ```php
-   require_once 'CRUD.php';
-
-   $pdo = new PDO('mysql:host=localhost;dbname=your_database', 'username', 'password');
-
-   $crud = new Eshk\Crud('your_table_name', 'id', $pdo);
-   ```
-
-   - **Separate Connection Configuration:**
-
-   ```php
-   require_once 'CRUD.php';
-
-   // Connection configuration (in a separate file, e.g., config.php)
-   $dbConfig = [
-       'host' => 'localhost',
-       'dbname' => 'your_database',
-       'username' => 'username',
-       'password' => 'password',
-   ];
-
-   // Connection establishment (in your code)
-   $pdo = new PDO(
-       "mysql:host={$dbConfig['host']};dbname={$dbConfig['dbname']}",
-       $dbConfig['username'],
-       $dbConfig['password']
-   );
-
-   CRUD::init($pdo);
-
-   $crud = new Eshk\Crud('your_table_name', 'id');
-   ```
-
-2. **CRUD Operations:**
-
-   **Create:**
-
-   ```php
-   $data = [
-       'name' => 'John Doe',
-       'email' => 'john.doe@example.com',
-   ];
-
-   $result = $crud->create($data); // result will hold the lastInsertId or false
-
-   if ($result) {
-       echo "Record created successfully with ID: $lastInsertId";
-   } else {
-       echo "Error creating record: " . $crud->getLastError();
-   }
-   ```
-
-   **Read:**
-
-   ```php
-   // Read all records
-   $records = $crud->read();
-   if ($records) {
-       print_r($records);
-   } else {
-       echo "No records found";
-   }
-
-   // Read specific record by ID
-   $id = 1;
-   $record = $crud->read($id);
-   if ($record) {
-       print_r($record);
-   } else {
-       echo "Record not found";
-   }
-   ```
-
-   **Update:**
-
-   ```php
-   $id = 2;
-   $data = [
-       'name' => 'Jane Smith',
-       'email' => 'jane.smith@example.com',
-   ];
-
-   $result = $crud->update($id, $data);
-
-   if ($result) {
-       echo "Record updated successfully";
-   } else {
-       echo "Error updating record: " . $crud->getLastError();
-   }
-   ```
-
-   **Delete:** (**Caution:** Use with care!)
-
-   ```php
-   $id = 3;
-
-   $result = $crud->delete($id);
-
-   if ($result) {
-       echo "Record deleted successfully";
-   } else {
-       echo "Error deleting record: " . $crud->getLastError();
-   }
-   ```
-
-   **Refer (Related Records):**
-
-   ```php
-   $relatedCrud = $crud->refer('related_table', 'foreign_key_field');
-
-   // Use the relatedCrud object to perform operations on the related table
-   ```
-
-**Error Handling**
-
-The `CRUD` class stores the last error message in the `$lastError` property. You can access it using `$crud->getLastError()` after any operation that might fail.
-
-**Additional Notes**
-
-- Consider security measures when working with user input to prevent SQL injection vulnerabilities. Use prepared statements with parameter binding.
-- The `refer` method provides a basic example for fetching related records. You can extend it to handle more complex relationships.
-- Error handling can be further enhanced with custom exception classes or comprehensive logging mechanisms.
-
-**Example Usage: Complete Script**
+### Basic Setup
 
 ```php
-// require_once 'CRUD.php';
-use Eshk\CRUD;
+<?php
 
-// Configuração da conexão PDO (substitua com suas informações)
-$pdo = new PDO('mysql:host=localhost;dbname=minha_base', 'usuario', 'senha');
+require_once 'vendor/autoload.php';
 
-CRUD::init($pdo);
+use Qrud\CRUD;
 
-// Criando instâncias para as tabelas 'usuarios' e 'roles'
-$crudUsuario = new CRUD('usuarios');
-$crudRole = new CRUD('roles');
+// Setup connection
+$pdo = new PDO('mysql:host=localhost;dbname=test', 'username', 'password');
+CRUD::registerConnection($pdo);
 
-// Criando um novo usuário e atribuindo uma role
-$novoUsuarioId = $crudUsuario->create([
-    'nome' => 'Maria',
-    'email' => 'maria@example.com',
-    'senha' => password_hash('senha123', PASSWORD_DEFAULT)
-]);
-
-$novaRoleId = $crudRole->create(['nome' => 'admin']);
-
-$crudUsuario->refer('usuarios_roles', 'usuario_id')->create([
-    'usuario_id' => $novoUsuarioId,
-    'role_id' => $novaRoleId
-]);
-
-$mariaRole = $crudUsuario->refer('user_role', 'id')->get($novoUsuario);
-
-
+// Or use a callback for lazy connection
+CRUD::registerConnection([DatabaseFactory::class, 'createConnection']);
 ```
+
+### Basic CRUD Operations
+
+```php
+// Create
+$userId = CRUD::table('users')->create([
+    'name' => 'John Doe',
+    'email' => 'john@example.com'
+]);
+
+// Read
+$user = CRUD::table('users')->read($userId);
+$allUsers = CRUD::table('users')->read();
+
+// Update
+CRUD::table('users')->update($userId, ['name' => 'Jane Doe']);
+
+// Delete
+CRUD::table('users')->delete($userId);
+```
+
+## 🔥 Query Builder Examples
+
+### Intelligent WHERE Clauses
+
+```php
+use Qrud\CRUD;
+
+// Simple equality
+$users = CRUD::query('users')
+    ->where('status', 'active')
+    ->get();
+
+// Comparisons
+$users = CRUD::query('users')
+    ->where('age', '>', 18)
+    ->where('name', 'LIKE', '%John%')
+    ->get();
+
+// NULL checks (intelligent!)
+$users = CRUD::query('users')
+    ->where('deleted_at', null)        // IS NULL
+    ->where('!updated_at', null)       // IS NOT NULL
+    ->get();
+
+// IN clauses (automatic!)
+$users = CRUD::query('users')
+    ->where('status', ['active', 'pending'])  // IN automatically
+    ->where('!role', ['banned', 'blocked'])   // NOT IN automatically
+    ->get();
+
+// BETWEEN (intelligent syntax)
+$orders = CRUD::query('orders')
+    ->where('created_at', ['2024-01-01', '><', '2024-12-31'])
+    ->get();
+
+// OR conditions
+$users = CRUD::query('users')
+    ->where('status', 'active')
+    ->orWhere('vip', 1)
+    ->orWhere('!deleted_at', null)
+    ->get();
+```
+
+### JOIN Operations
+
+```php
+// INNER JOIN
+$results = CRUD::query('users')
+    ->select('users.*, profiles.bio')
+    ->joinInner('profiles', 'users.id = profiles.user_id')
+    ->get();
+
+// LEFT JOIN with alias
+$results = CRUD::query(['users', 'u'])
+    ->joinLeft(['profiles', 'p'], 'u.id = p.user_id')
+    ->where('u.status', 'active')
+    ->get();
+
+// Multiple JOINs
+$results = CRUD::query('orders')
+    ->joinInner('users', 'orders.user_id = users.id')
+    ->joinLeft('products', 'orders.product_id = products.id')
+    ->get();
+```
+
+### Aggregations and Grouping
+
+```php
+// Count
+$count = CRUD::query('users')
+    ->where('active', 1)
+    ->count();
+
+// Sum and Average
+$total = CRUD::query('orders')
+    ->where('status', 'completed')
+    ->sum('amount');
+
+$avg = CRUD::query('products')
+    ->avg('price');
+
+// Group By with Having
+$stats = CRUD::query('orders')
+    ->select('user_id, COUNT(*) as order_count, SUM(amount) as total')
+    ->groupBy('user_id')
+    ->having('order_count', '>', 5)
+    ->having('total', '>', 1000)
+    ->get();
+```
+
+### Subqueries
+
+```php
+// WHERE subquery
+$users = CRUD::query('users')
+    ->whereSub('id', 'IN', function($query) {
+        $query->where('active', 1)
+              ->where('age', '>', 18);
+    })
+    ->get();
+
+// Complex subquery
+$highValueUsers = CRUD::query('users')
+    ->whereSub('id', 'IN', function($query) {
+        $query->select('user_id')
+              ->from('orders')
+              ->where('amount', '>', 1000)
+              ->groupBy('user_id')
+              ->having('COUNT(*)', '>', 3);
+    })
+    ->get();
+```
+
+### Pagination
+
+```php
+// Simple pagination
+$page1 = CRUD::query('products')
+    ->where('stock', '>', 0)
+    ->paginate(15, 1);
+
+// Full pagination data
+$result = CRUD::query('articles')
+    ->where('published', 1)
+    ->orderBy('created_at', 'DESC')
+    ->paginate(10, 2);
+
+// Returns:
+// [
+//     'data' => [...],
+//     'pagination' => [
+//         'current_page' => 2,
+//         'per_page' => 10,
+//         'total' => 150,
+//         'last_page' => 15
+//     ]
+// ]
+```
+
+### UNION Queries
+
+```php
+$importantUsers = CRUD::query('users')
+    ->select('id, name, "active" as type')
+    ->where('status', 'active')
+    ->union(function($query) {
+        $query->where('vip', 1)
+              ->select('id, name, "vip" as type');
+    })
+    ->union(function($query) {
+        $query->where('admin', 1)
+              ->select('id, name, "admin" as type');
+    })
+    ->orderBy('name')
+    ->get();
+```
+
+## 🔄 Transaction Support
+
+```php
+use Qrud\CRUD;
+
+try {
+    CRUD::beginTransaction();
+    
+    $orderId = CRUD::table('orders')->create([
+        'user_id' => 1,
+        'amount' => 99.99
+    ]);
+    
+    CRUD::table('order_items')->create([
+        'order_id' => $orderId,
+        'product_id' => 123,
+        'quantity' => 2
+    ]);
+    
+    CRUD::table('inventory')->update(123, [
+        'stock' => DB::raw('stock - 2')
+    ]);
+    
+    CRUD::commit();
+    echo "Transaction completed successfully!";
+    
+} catch (Exception $e) {
+    CRUD::rollback();
+    echo "Transaction failed: " . $e->getMessage();
+}
+```
+
+## 🎯 Advanced Examples
+
+### E-commerce Query
+
+```php
+$report = CRUD::query(['orders', 'o'])
+    ->select('o.*, u.name, u.email, COUNT(oi.id) as item_count')
+    ->joinInner(['users', 'u'], 'o.user_id = u.id')
+    ->joinLeft(['order_items', 'oi'], 'o.id = oi.order_id')
+    ->where('o.status', 'completed')
+    ->where('o.created_at', ['2024-01-01', '><', '2024-12-31'])
+    ->where('!o.cancelled', 1)
+    ->groupBy('o.id')
+    ->having('item_count', '>', 0)
+    ->orderBy('o.created_at', 'DESC')
+    ->paginate(20, 1);
+```
+
+### Complex Reporting
+
+```php
+$salesReport = CRUD::query('orders')
+    ->select('DATE(created_at) as date, 
+              COUNT(*) as order_count, 
+              SUM(amount) as daily_revenue,
+              AVG(amount) as avg_order_value')
+    ->where('status', 'completed')
+    ->whereBetween('created_at', '2024-01-01', '2024-01-31')
+    ->groupBy('DATE(created_at)')
+    ->having('daily_revenue', '>', 1000)
+    ->orderBy('date', 'ASC')
+    ->get();
+```
+
+## 🔧 Debugging
+
+```php
+// Get generated SQL
+$query = CRUD::query('users')
+    ->where('status', 'active')
+    ->where('age', '>', 18);
+
+echo $query->toSql(); 
+// SELECT * FROM users WHERE status = ? AND age > ?
+
+print_r($query->getBindings());
+// ['active', 18]
+
+// Or use mountSQL() for complete SQL with bindings
+echo $query->mountSQL();
+```
+
+## 📚 API Reference
+
+### CRUD Class Methods
+
+- `table(string $name, string $refKey = "id")` - Create CRUD instance
+- `create(array $data)` - Insert record
+- `read(mixed $id = null, ?string $select = null)` - Read record(s)
+- `update(mixed $id, array $data)` - Update record
+- `delete(mixed $id)` - Delete record
+- `select(?string $where, array $params = [], ?string $fields = '*')` - Custom SELECT
+- `query(string|array $table, string $select = '*')` - Create QueryBuilder
+
+### QueryCrud Methods
+
+- `where() / orWhere()` - Intelligent conditions
+- `join*()` - All JOIN types
+- `groupBy() / having()` - Grouping
+- `orderBy() / limit()` - Sorting & limits
+- `count() / sum() / avg() / exists()` - Aggregations
+- `paginate()` - Pagination
+- `union()` - UNION queries
+- `get() / first()` - Execution
+
+## 🐛 Error Handling
+
+```php
+try {
+    $user = CRUD::table('users')->read(123);
+} catch (\Qrud\Exceptions\QueryException $e) {
+    echo "Query failed: " . $e->getMessage();
+} catch (\Qrud\Exceptions\ConnectionException $e) {
+    echo "Connection failed: " . $e->getMessage();
+}
+```
+
+## 🤝 Contributing
+
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Inspired by Laravel's Eloquent and Query Builder
+- Built with PHP 8+ features
+- Focus on developer experience and productivity

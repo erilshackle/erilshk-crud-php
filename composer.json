@@ -1,14 +1,10 @@
 {
-    "name": "eshk/crud",
-    "description": "Perform CRUD operation in a easy way. handling the main Read, Insert, Update and Delete operations over a table and records",
+    "name": "erilshk/qrud",
+    "description": "A powerful and intuitive CRUD & Query Builder for PHP with Laravel-like syntax",
     "type": "library",
+    "keywords": ["crud", "query-builder", "database", "pdo", "orm", "mysql", "sql"],
     "license": "MIT",
-    "minimum-stability": "stable",
-    "autoload": {
-        "psr-4": {
-            "Eshk\\Crud\\": "src/"
-        }
-    },
+    "version": "2.0.0",
     "authors": [
         {
             "name": "Eril Shackle",
@@ -16,7 +12,22 @@
         }
     ],
     "require": {
-        "php": ">=7.4"
+        "php": "^8.0",
+        "ext-pdo": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Qrud\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Qrud\\Tests\\": "tests/"
+        }
+    },
+    "suggest": {
+        "ext-pdo_mysql": "For MySQL/MariaDB databases",
+        "ext-pdo_sqlite": "For SQLite databases",
+        "ext-pdo_pgsql": "For PostgreSQL databases"
     }
-    
 }
