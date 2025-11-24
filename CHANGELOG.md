@@ -11,6 +11,12 @@ All notable changes to this project will be documented in this file.
 - chore: delete QuidQuery.php
 - build(deps): update composer.json
 - Refactor CRUD operations and introduce QRud Query Builder
+
+## [v1.0.0] - 2025-11-24
+
+### Changed
+- chore: delete composer.lock
+- docs: create CHANGELOG.md
 - delete vendor
 - "Removed .vscode/settings.json file"
 - `Update composer.json and lock files to reflect changes in the project.`
