@@ -2,7 +2,7 @@
 
 A powerful and intuitive CRUD & Query Builder for PHP with Laravel-like syntax, featuring intelligent WHERE clauses and fluent API.
 
-![PHP Version](https://img.shields.io/badge/PHP-8.0%2B-blue) ![License](https://img.shields.io/badge/License-MIT-green) ![Version](https://img.shields.io/badge/Version-1.0.0-orange)
+![PHP Version](https://img.shields.io/badge/PHP-8.0%2B-blue) ![License](https://img.shields.io/badge/License-MIT-green) ![Version](https://img.shields.io/badge/Version-2.0.0-orange)
 
 ## ✨ Features
 
